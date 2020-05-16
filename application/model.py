@@ -1,30 +1,41 @@
 from . import db
+from datetime import datetime
 from werkzeug.security import generate_password_hash, check_password_hash
+from sqlalchemy import Column, String, Integer, DateTime, ForeignKey, Text
+from sqlalchemy.orm import relationship, backref
 
 
-class User(db.model):
-    __tablename__ = "table user"
-    id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(30), unique=True, nullable=False)
-    password = db.Column(db.String(100), nullable=False)
+class Question(db.Model):
+    __tablename_ = "Table question"
+    id = Column(Integer, primary_key=True)
+    question = Column(String(100), nullable=False)
+    datepost = Column(
+        DateTime, default=datetime.utcnow(), nullable=False)
+    answer = relationship('Answer', backref='question', lazy=True)
 
-    def __repr__:
-        return '<User> {}'.format(self.username)
+    def __repr__(self):
+        return '<Question> {}'.format(self.id, self.question)
 
-    def check_password_hash(self, password):
-        self.password = generate_password_hash(password, method='sha256')
-
-    def generate_password_hash(self, password):
-        return check_password_hash(self.password, password)
-
-
-class Question(db.model):
-    __tablename__ = "table question"
-    id = db.Column(db.Integer, primary_key=True)
-    question = db.Column(db.String(100), nullable=False)
+    def view(self):
+        return {"id": self.id, "title": self.question, "date": self.datepost, "answer": self.answer}
 
 
 class Answer(db.Model):
-    __tablename__ = "table Answer"
-    id = db.Column(db.Integer, primary_key=True)
-    answer = db.Column(db.String(100), nullable=False)
+    __tablename_ = "Table Answer"
+    id = Column(Integer, primary_key=True)
+    answer = Column(Text, nullable=False)
+    question_id = Column(Integer, ForeignKey(
+        'question.id'), nullable=False)
+
+    def __repr__(self):
+        return "<Answer> {}".format(self.id, self.question_id)
+
+
+# class Tag(db.Model):
+#     __tablename_ = "Table Tag"
+#     id = Column(Integer, primary_key=True)
+#     tagname = Column(String(50))
+#     tagquestion = relationship("Question", backref="tagQuestion", lazy=True)
+
+#     def __repr__(self):
+#         return "<Tag> {}".format(self.id, self.question_id, self.tagname)
