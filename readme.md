@@ -1,7 +1,7 @@
 ## Install
 
-pip install -r requirements.txt
+*** pip install -r requirements.txt ***
 
 ### Run App
 
-flask run
+*** flask run ***
