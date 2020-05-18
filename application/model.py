@@ -16,7 +16,7 @@ class Question(db.Model):
     tag_id = Column(Integer, ForeignKey(
         'tag.id'))
 
-    usercreate = Column(Integer, ForeignKey('user.id'))
+    # usercreate = Column(Integer, ForeignKey('user.id'))
 
     def __repr__(self):
         return '<Question> {}'.format(self.id, self.question)
@@ -36,7 +36,7 @@ class Answer(db.Model):
     answer = Column(Text, nullable=False)
     question_id = Column(Integer, ForeignKey(
         'question.id'), nullable=False)
-    usercreate = Column(Integer, ForeignKey('user.id'))
+    # usercreate = Column(Integer, ForeignKey('user.id'))
     date_create = Column(
         DateTime, default=datetime.utcnow(), nullable=False)
 
@@ -75,9 +75,19 @@ class Tag(db.Model):
 class User(db.Model):
     __tablename_ = "User"
     id = Column(Integer, primary_key=True)
-    username = Column(String(20))
-    email = Column(db.String(20))
-    password = Column(db.String(30))
+    username = Column(db.String(20), unique=True, nullable=False)
+    email = Column(db.String(40), unique=True, nullable=False)
+    password = Column(db.String(60), nullable=False)
 
-    userquestion = relationship("Question", backref="userquestion", lazy=True)
-    useranswer = relationship("Answer", backref="useranswer", lazy=True)
+    # userquestion = relationship("Question", backref="userquestion", lazy=True)
+    # useranswer = relationship("Answer", backref="useranswer", lazy=True)
+
+    def generate_password(self, password):
+        self.password = generate_password_hash(password, method='sha256')
+
+    def check_password(self, password):
+        return check_password_hash(self.password, password)
+
+    def saveDb(self):
+        db.session.add(self)
+        db.session.commit()

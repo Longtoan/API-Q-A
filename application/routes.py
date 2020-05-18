@@ -1,5 +1,5 @@
 from flask import current_app as app
-from .model import db, Question, Answer, Tag
+from .model import db, Question, Answer, Tag, User
 from flask import jsonify, request, make_response
 from sqlalchemy import exc
 
@@ -76,8 +76,7 @@ def newTag():
         des = request.json['description']
         data = Tag(tagname=tagname, description=des)
         try:
-            db.session.add(data)
-            db.session.commit()
+            data.saveDb()
         except exc.SQLAlchemyError:
             db.session.rollback()
 
@@ -106,3 +105,18 @@ def deleteTag(tag_id):
         db.session.delete(tag)
         db.session.commit()
         return jsonify({"message": "successfully delete id {}".format(tag_id)})
+
+
+@app.route("/user/register", methods=["POST"])
+def register():
+    username = request.json['username']
+    email = request.json['email']
+    password = request.json['password']
+
+    if request.method == "POST":
+        user = User(username=username, email=email, password=password)
+        user.generate_password(password)
+        try:
+            user.saveDb()
+        except exc.SQLAlchemyError:
+            db.session.rollback()
